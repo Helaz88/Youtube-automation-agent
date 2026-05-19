@@ -104,7 +104,8 @@ class ScriptWriterAgent {
     if (strategy.contentType === 'Tutorial') {
       return `How to ${strategy.topic}: Step-by-Step Guide`;
     } else if (strategy.contentType === 'List') {
-      return `Top 10 ${strategy.topic} Tips You Need to Know`;
+      const cleanTopic = strategy.topic.replace(/^top\s+\d+\s+/i, '');
+      return `Top 10 ${cleanTopic} Tips You Need to Know`;
     } else if (strategy.contentType === 'Review') {
       return `${strategy.topic} Review: Is It Worth It?`;
     }

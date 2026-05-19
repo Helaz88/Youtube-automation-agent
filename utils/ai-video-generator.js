@@ -37,8 +37,8 @@ class AIVideoGenerator {
     this.elevenLabsVoiceId = credentials.elevenLabs?.voiceId || process.env.ELEVENLABS_VOICE_ID;
     
     // Azure Speech configuration
-    this.azureSpeechKey = credentials.azure?.speechKey || process.env.AZURE_SPEECH_KEY;
-    this.azureSpeechRegion = credentials.azure?.speechRegion || process.env.AZURE_SPEECH_REGION;
+    this.azureSpeechKey = credentials.azureSpeech?.subscriptionKey || credentials.azure?.speechKey || process.env.AZURE_SPEECH_KEY;
+    this.azureSpeechRegion = credentials.azureSpeech?.region || credentials.azure?.speechRegion || process.env.AZURE_SPEECH_REGION;
   }
 
   async generateTTSAudio(text, outputPath) {

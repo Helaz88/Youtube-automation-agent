@@ -173,13 +173,9 @@ class YouTubeAutomationAgent {
       seo: seoData
     });
     this.logger.info('Production processing complete');
-    
-    // Step 6: Save to database
-    const contentId = await this.db.saveProductionData(productionData);
-    this.logger.info(`Content saved with ID: ${contentId}`);
-    
+
     return {
-      contentId,
+      contentId: productionData.id,
       title: script.title,
       scheduledFor: productionData.scheduledPublishTime
     };
