@@ -174,6 +174,10 @@ class YouTubeAutomationAgent {
     });
     this.logger.info('Production processing complete');
 
+    // Step 6: Schedule for publishing
+    await this.agents.publishing.scheduleContent(productionData);
+    this.logger.info(`Content scheduled for: ${productionData.scheduledPublishTime}`);
+
     return {
       contentId: productionData.id,
       title: script.title,
