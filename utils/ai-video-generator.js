@@ -185,17 +185,13 @@ class AIVideoGenerator {
 
   async generateVideo(script, visualAssets, audioPath, outputPath) {
     this.logger.info('Generating video from assets...');
-    
+
     try {
-      // Try Replicate for video generation first
-      if (this.replicate && this.replicate.auth) {
-        return await this.generateReplicateVideo(script, visualAssets, audioPath, outputPath);
-      }
-      
-      // Fallback to simple slideshow with Playwright
-      return await this.generateSlideshowVideo(script, visualAssets, audioPath, outputPath);
+      const { FFmpegAssembler } = require('./ffmpeg-assembler');
+      const assembler = new FFmpegAssembler();
+      return await assembler.assembleVideo(script, visualAssets, audioPath, outputPath);
     } catch (error) {
-      this.logger.error('Video generation failed:', error);
+      this.logger.error('FFmpeg assembly failed:', error.message);
       return await this.simulateVideoGeneration(script, visualAssets, audioPath, outputPath);
     }
   }

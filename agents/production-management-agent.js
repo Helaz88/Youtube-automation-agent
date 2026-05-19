@@ -556,36 +556,45 @@ class ProductionManagementAgent {
   }
 
   async assembleVideo(productionData) {
-    this.logger.info('Assembling final AI-generated video...');
-    
+    this.logger.info('Assembling final video...');
+
+    const finalVideoPath = path.join(__dirname, '..', 'data', 'videos', `${productionData.id}_final.mp4`);
+
     try {
-      const finalVideoPath = path.join(__dirname, '..', 'data', 'videos', `${productionData.id}_final.mp4`);
-      
-      // Use AI Video Generator to create the final video
-      await this.aiVideoGenerator.generateVideo(
+      const resultPath = await this.aiVideoGenerator.generateVideo(
         productionData.script,
-        productionData.assets.video.visualAssets || [],
-        productionData.assets.audio.path,
+        productionData.assets.video?.visualAssets || [],
+        productionData.assets.audio?.path || '',
         finalVideoPath
       );
-      
-      // Get file stats
-      const stats = await fs.stat(finalVideoPath);
-      
-      productionData.assets.finalVideo = {
-        path: finalVideoPath,
-        fileSize: stats.size,
-        duration: productionData.estimatedDuration,
-        generatedWith: 'AI',
-        resolution: '1920x1080',
-        format: 'mp4'
-      };
-      
-      this.logger.info('AI video assembly complete');
-      return finalVideoPath;
+
+      // resultPath may be the real .mp4 or a simulation fallback
+      const isReal = resultPath === finalVideoPath && await fs.stat(finalVideoPath).then(s => s.size > 0).catch(() => false);
+
+      if (isReal) {
+        const stats = await fs.stat(finalVideoPath);
+        productionData.assets.finalVideo = {
+          path: finalVideoPath,
+          fileSize: stats.size,
+          duration: productionData.estimatedDuration,
+          resolution: '1280x720',
+          format: 'mp4',
+          simulated: false
+        };
+        this.logger.info(`Video assembled: ${(stats.size / 1024 / 1024).toFixed(1)} MB`);
+      } else {
+        // FFmpeg fell back to simulation
+        productionData.assets.finalVideo = {
+          path: resultPath,
+          fileSize: 0,
+          duration: productionData.estimatedDuration,
+          simulated: true
+        };
+      }
+
+      return productionData.assets.finalVideo.path;
     } catch (error) {
-      this.logger.error('AI video assembly failed:', error);
-      // Fallback to simulation
+      this.logger.error('Video assembly failed:', error);
       return await this.simulateVideoAssembly(productionData);
     }
   }
