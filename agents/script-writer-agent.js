@@ -15,28 +15,33 @@ class ScriptWriterAgent {
 
   loadTemplates() {
     return {
+      documentary: {
+        structure: ['hook', 'introduction', 'historical_context', 'key_events', 'turning_point', 'aftermath', 'legacy', 'cta'],
+        tone: 'narrative, immersive, respectful',
+        pacing: 'deliberate'
+      },
+      biography: {
+        structure: ['hook', 'introduction', 'early_life', 'rise_to_command', 'defining_battle', 'decline_or_death', 'legacy', 'cta'],
+        tone: 'narrative, humanizing',
+        pacing: 'deliberate'
+      },
+      explainer: {
+        structure: ['hook', 'introduction', 'background', 'explanation', 'examples', 'implications', 'summary', 'cta'],
+        tone: 'analytical, clear',
+        pacing: 'steady'
+      },
+      list: {
+        structure: ['hook', 'introduction', 'list_items', 'summary', 'cta'],
+        tone: 'engaging, punchy',
+        pacing: 'quick'
+      },
       tutorial: {
         structure: ['hook', 'introduction', 'problem', 'solution_steps', 'demonstration', 'recap', 'cta'],
         tone: 'educational',
         pacing: 'moderate'
       },
-      explainer: {
-        structure: ['hook', 'question', 'background', 'explanation', 'examples', 'implications', 'summary', 'cta'],
-        tone: 'informative',
-        pacing: 'steady'
-      },
-      list: {
-        structure: ['hook', 'introduction', 'list_items', 'bonus_item', 'summary', 'cta'],
-        tone: 'engaging',
-        pacing: 'quick'
-      },
-      review: {
-        structure: ['hook', 'introduction', 'overview', 'pros', 'cons', 'comparison', 'verdict', 'cta'],
-        tone: 'analytical',
-        pacing: 'detailed'
-      },
       story: {
-        structure: ['hook', 'setup', 'conflict', 'journey', 'climax', 'resolution', 'lesson', 'cta'],
+        structure: ['hook', 'introduction', 'setup', 'conflict', 'climax', 'resolution', 'lesson', 'cta'],
         tone: 'narrative',
         pacing: 'dynamic'
       }
@@ -90,117 +95,88 @@ class ScriptWriterAgent {
   }
 
   async generateTitle(strategy) {
-    const templates = [
-      `${strategy.angle}`,
-      `${strategy.topic}: The Complete Guide`,
-      `Everything You Need to Know About ${strategy.topic}`,
-      `${strategy.topic} in ${new Date().getFullYear()}: What's Changed?`,
-      `The Truth About ${strategy.topic} (Shocking Results)`,
-      `How to Master ${strategy.topic} in 30 Days`,
-      `${strategy.topic}: Beginner to Expert Guide`
-    ];
+    // Use the angle as the primary title when available
+    if (strategy.angle) return strategy.angle;
 
-    // Select based on content type
-    if (strategy.contentType === 'Tutorial') {
-      return `How to ${strategy.topic}: Step-by-Step Guide`;
-    } else if (strategy.contentType === 'List') {
+    const contentType = strategy.contentType;
+    if (contentType === 'Documentary') {
+      return `The Untold Story of ${strategy.topic}`;
+    } else if (contentType === 'Biography') {
+      return `The Forgotten Soldier: ${strategy.topic}`;
+    } else if (contentType === 'List') {
       const cleanTopic = strategy.topic.replace(/^top\s+\d+\s+/i, '');
-      return `Top 10 ${cleanTopic} Tips You Need to Know`;
-    } else if (strategy.contentType === 'Review') {
-      return `${strategy.topic} Review: Is It Worth It?`;
+      return `Top 10 Forgotten Battles: ${cleanTopic}`;
+    } else if (contentType === 'Explainer') {
+      return `Why ${strategy.topic} Changed the Course of History`;
     }
 
-    return templates[Math.floor(Math.random() * templates.length)];
+    return `${strategy.topic}: The Battle History Forgot`;
   }
 
   async generateHook(strategy) {
     const hooks = [
       {
+        type: 'scene',
+        text: `[ATMOSPHERIC OPENING] The year is [year]. [Brief vivid scene-setting sentence about ${strategy.topic}]. What happened here was never meant to be remembered.`
+      },
+      {
         type: 'question',
-        text: `Have you ever wondered ${this.generateQuestionAbout(strategy.topic)}?`
+        text: `Why has history chosen to forget ${strategy.topic}? Today, we change that.`
       },
       {
         type: 'statistic',
-        text: `Did you know that ${this.generateStatistic(strategy.topic)}?`
+        text: `Thousands of men fought and died during ${strategy.topic}. Most history books give it a single paragraph — or none at all. This is their story.`
       },
       {
-        type: 'statement',
-        text: `${strategy.topic} is about to change everything, and here's why...`
+        type: 'contrast',
+        text: `While the world remembers the famous battles of ${strategy.era || 'this era'}, a different conflict was unfolding — one that would prove just as decisive. This is the story of ${strategy.topic}.`
       },
       {
-        type: 'challenge',
-        text: `Most people think they understand ${strategy.topic}, but they're completely wrong.`
-      },
-      {
-        type: 'promise',
-        text: `In the next few minutes, you'll learn exactly how to master ${strategy.topic}.`
+        type: 'survivor',
+        text: `"We knew the odds were against us." Those were the words of the men who fought in ${strategy.topic}. Their sacrifice deserves to be told.`
       }
     ];
 
     const selected = hooks[Math.floor(Math.random() * hooks.length)];
-    
+
     return {
       type: selected.type,
       text: selected.text,
-      duration: '0:00-0:05'
+      duration: '0:00-0:20',
+      productionNote: 'Use dramatic orchestral music, archival footage or illustrated maps'
     };
-  }
-
-  generateQuestionAbout(topic) {
-    const questions = [
-      `why ${topic} is becoming so important`,
-      `how ${topic} actually works`,
-      `what makes ${topic} different from everything else`,
-      `why experts are talking about ${topic}`,
-      `how ${topic} could change your life`
-    ];
-    
-    return questions[Math.floor(Math.random() * questions.length)];
-  }
-
-  generateStatistic(topic) {
-    const stats = [
-      `90% of people don't understand ${topic} correctly`,
-      `${topic} has grown by 300% in the last year alone`,
-      `experts predict ${topic} will be worth billions by 2030`,
-      `only 1 in 10 people are using ${topic} effectively`,
-      `${topic} can save you hours every single day`
-    ];
-    
-    return stats[Math.floor(Math.random() * stats.length)];
   }
 
   async generateIntroduction(strategy) {
     return {
-      greeting: "Hey everyone, welcome back to the channel!",
-      topicIntro: `Today, we're diving deep into ${strategy.topic}.`,
-      valueProposition: `By the end of this video, you'll understand exactly ${this.getValueProposition(strategy)}.`,
-      credibility: this.getCredibilityStatement(strategy),
-      duration: '0:05-0:20'
+      greeting: "Welcome to The Forgotten Front — where we uncover the battles, campaigns, and soldiers that history left behind.",
+      topicIntro: `Today we're going deep into ${strategy.topic}${strategy.era ? `, a story from the ${strategy.era}` : ''}.`,
+      valueProposition: `By the end of this video, you'll understand ${this.getValueProposition(strategy)}.`,
+      channelContext: 'If this is your first time here, this channel is dedicated to the overlooked conflicts and forgotten heroes of military history.',
+      duration: '0:20-0:45'
     };
   }
 
   getValueProposition(strategy) {
     const propositions = {
-      'Tutorial': `how to implement ${strategy.topic} step by step`,
-      'Explainer': `what ${strategy.topic} is and why it matters`,
-      'List': `the most important things about ${strategy.topic}`,
-      'Review': `whether ${strategy.topic} is right for you`,
-      'Story': `the incredible journey of ${strategy.topic}`
+      'Documentary': `why ${strategy.topic} mattered, who fought there, and why it was forgotten`,
+      'Biography': `who this soldier really was — beyond the official record`,
+      'Explainer': `the strategic and human dimensions of ${strategy.topic}`,
+      'List': `the key battles and events that defined this conflict`,
+      'Story': `the full human story behind ${strategy.topic}`
     };
-    
-    return propositions[strategy.contentType] || `everything about ${strategy.topic}`;
+
+    return propositions[strategy.contentType] || `the full story of ${strategy.topic}`;
   }
 
   getCredibilityStatement(strategy) {
     const statements = [
-      "I've spent months researching this topic",
-      "After working with hundreds of people on this",
-      "Based on the latest research and data",
-      "Drawing from real-world experience",
-      "Using proven methods and strategies"
+      "Drawing from firsthand accounts, military archives, and overlooked records",
+      "Based on declassified documents and regimental histories",
+      "Reconstructed from letters, diaries, and official dispatches",
+      "Using primary sources rarely cited in mainstream history"
     ];
-    
+
     return statements[Math.floor(Math.random() * statements.length)];
   }
 
@@ -221,16 +197,35 @@ class ScriptWriterAgent {
 
   async generateSection(sectionType, strategy) {
     const sectionGenerators = {
+      // Military history sections
+      historical_context: () => this.generateHistoricalContext(strategy),
+      key_events: () => this.generateKeyEvents(strategy),
+      turning_point: () => this.generateTurningPoint(strategy),
+      aftermath: () => this.generateAftermath(strategy),
+      legacy: () => this.generateLegacy(strategy),
+      early_life: () => this.generateEarlyLife(strategy),
+      rise_to_command: () => this.generateRiseToCommand(strategy),
+      defining_battle: () => this.generateDefiningBattle(strategy),
+      decline_or_death: () => this.generateDeclineOrDeath(strategy),
+      // Generic sections
       problem: () => this.generateProblemSection(strategy),
       solution_steps: () => this.generateSolutionSteps(strategy),
       demonstration: () => this.generateDemonstration(strategy),
+      background: () => this.generateExplanation(strategy),
       explanation: () => this.generateExplanation(strategy),
       examples: () => this.generateExamples(strategy),
       list_items: () => this.generateListItems(strategy),
       pros: () => this.generatePros(strategy),
       cons: () => this.generateCons(strategy),
       comparison: () => this.generateComparison(strategy),
-      implications: () => this.generateImplications(strategy)
+      implications: () => this.generateImplications(strategy),
+      summary: () => this.generateGenericSection('Summary', strategy),
+      setup: () => this.generateGenericSection('Setup', strategy),
+      conflict: () => this.generateGenericSection('Conflict', strategy),
+      climax: () => this.generateGenericSection('Climax', strategy),
+      resolution: () => this.generateGenericSection('Resolution', strategy),
+      lesson: () => this.generateGenericSection('Lesson', strategy),
+      recap: () => this.generateGenericSection('Recap', strategy)
     };
 
     const generator = sectionGenerators[sectionType];
@@ -476,31 +471,158 @@ class ScriptWriterAgent {
     };
   }
 
+  async generateHistoricalContext(strategy) {
+    return {
+      type: 'historical_context',
+      title: 'Setting the Scene',
+      content: [
+        `To understand ${strategy.topic}, we first need to understand the world in which it took place.`,
+        `[DESCRIBE the broader conflict, the strategic situation, and the forces involved]`,
+        `[MAP showing the theater of operations — region: ${strategy.region || 'unknown'}]`,
+        `The stakes could not have been higher.`
+      ],
+      productionNote: 'Overlay maps, troop disposition graphics, timeline animation',
+      duration: 90
+    };
+  }
+
+  async generateKeyEvents(strategy) {
+    return {
+      type: 'key_events',
+      title: 'The Events That Defined It',
+      content: [
+        `[EVENT 1] — The opening moves. What each side planned and why.`,
+        `[EVENT 2] — The first contact. How the battle or campaign began to unfold.`,
+        `[EVENT 3] — The escalation. Moments where the outcome was truly in the balance.`,
+        `Throughout all of this, the men on the ground were [describe conditions: terrain, weather, exhaustion, morale].`
+      ],
+      productionNote: 'Use archival photographs, illustrated battle maps, voiceover narration',
+      duration: 150
+    };
+  }
+
+  async generateTurningPoint(strategy) {
+    return {
+      type: 'turning_point',
+      title: 'The Moment Everything Changed',
+      content: [
+        `Then came the moment that decided everything.`,
+        `[DESCRIBE the critical decision, tactical shift, or event that tipped the balance]`,
+        `Those who were there described it as [quote or paraphrase from records].`,
+        `In a matter of hours — or days — the outcome of ${strategy.topic} was sealed.`
+      ],
+      productionNote: 'Slow pacing, dramatic music drop, close-up photographs if available',
+      duration: 90
+    };
+  }
+
+  async generateAftermath(strategy) {
+    return {
+      type: 'aftermath',
+      title: 'The Cost',
+      content: [
+        `When the fighting ended, the scale of what had happened became clear.`,
+        `[CASUALTIES, territorial changes, strategic consequences]`,
+        `For the survivors, the road home — or forward — was long.`,
+        `And yet, almost immediately, ${strategy.topic} began to fade from the headlines.`
+      ],
+      productionNote: 'Memorial imagery, statistics displayed on screen, muted tone',
+      duration: 75
+    };
+  }
+
+  async generateLegacy(strategy) {
+    return {
+      type: 'legacy',
+      title: 'Why It Still Matters',
+      content: [
+        `${strategy.topic} has largely been forgotten — but it shouldn't be.`,
+        `The outcome here directly influenced [broader strategic/historical consequence].`,
+        `The men who fought deserve to be remembered — not as statistics, but as individuals who made a choice under impossible circumstances.`,
+        `That is why channels like this one exist.`
+      ],
+      productionNote: 'Close with archival portrait photographs if available, fade to black',
+      duration: 60
+    };
+  }
+
+  async generateEarlyLife(strategy) {
+    return {
+      type: 'early_life',
+      title: 'The Making of a Soldier',
+      content: [
+        `Before the war, before the medals and the dispatches, there was just a person.`,
+        `[BIRTHPLACE, social background, what shaped them before military service]`,
+        `Nothing in their early life seemed to predict what was coming.`
+      ],
+      duration: 60
+    };
+  }
+
+  async generateRiseToCommand(strategy) {
+    return {
+      type: 'rise_to_command',
+      title: 'Earning Their Place',
+      content: [
+        `[EARLY MILITARY CAREER — first postings, early experiences, what set them apart]`,
+        `By the time ${strategy.topic} came around, they had already seen enough to know exactly how bad it could get.`,
+        `And yet they stepped forward.`
+      ],
+      duration: 75
+    };
+  }
+
+  async generateDefiningBattle(strategy) {
+    return {
+      type: 'defining_battle',
+      title: 'The Crucible',
+      content: [
+        `[THE CENTRAL CONFLICT OR CAMPAIGN — the moment that defined this person's story]`,
+        `The decisions made here — right or wrong — would follow them for the rest of their life.`,
+        `[WHAT HAPPENED, how they responded, what it cost them]`
+      ],
+      productionNote: 'Most detailed section — use maps, quotes, archival records',
+      duration: 120
+    };
+  }
+
+  async generateDeclineOrDeath(strategy) {
+    return {
+      type: 'decline_or_death',
+      title: 'The End of the Road',
+      content: [
+        `Every story has an end.`,
+        `[HOW THEIR SERVICE OR LIFE CONCLUDED — death in battle, retirement, disgrace, illness]`,
+        `For someone who had given so much, the world moved on quickly.`
+      ],
+      duration: 60
+    };
+  }
+
   async generateConclusion(strategy) {
     return {
       type: 'conclusion',
-      title: 'Wrapping Up',
+      title: 'Lest We Forget',
       recap: [
-        `So that's everything you need to know about ${strategy.topic}.`,
-        'We covered the key points:',
-        '- The fundamentals and why they matter',
-        '- Practical steps to get started',
-        '- Real-world applications and examples',
-        '- Tips for long-term success'
+        `${strategy.topic} was not a footnote. It was a battle fought by real people, for real stakes.`,
+        `We covered:`,
+        `- The context that made it inevitable`,
+        `- The men and decisions that shaped its outcome`,
+        `- Why it was forgotten — and why it shouldn't be`
       ],
-      finalThought: `Remember, ${strategy.topic} is a journey, not a destination. Keep learning and improving!`,
-      duration: '30 seconds'
+      finalThought: `History is not just made by the famous battles in the famous places. It's made on the forgotten fronts too — by soldiers whose names we barely know.`,
+      duration: '45 seconds'
     };
   }
 
   async generateCTA(strategy) {
     return {
       type: 'call_to_action',
-      subscribe: "If you found this helpful, make sure to subscribe and hit the notification bell!",
-      like: "Give this video a thumbs up if you learned something new.",
-      comment: `Let me know in the comments: What's your experience with ${strategy.topic}?`,
-      nextVideo: "Check out this related video for more insights.",
-      duration: '15 seconds'
+      subscribe: "If this story moved you, subscribe to The Forgotten Front — we publish a new forgotten battle every week.",
+      like: "A like helps more people discover these stories. It takes two seconds and it matters.",
+      comment: `Which front do you think history has most unfairly forgotten? Let us know in the comments.`,
+      nextVideo: `If you enjoyed this, you might also want to watch our video on [RELATED FORGOTTEN BATTLE].`,
+      duration: '20 seconds'
     };
   }
 
