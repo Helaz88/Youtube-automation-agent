@@ -252,30 +252,29 @@
     <script>
         // Dashboard functionality
         async function loadDashboard() {
-            try {
-                // Load system health
-                const healthResponse = await fetch('/health');
-                const healthData = await healthResponse.json();
-                updateSystemStatus(healthData);
-                
-                // Load schedule
-                const scheduleResponse = await fetch('/schedule');
-                const scheduleData = await scheduleResponse.json();
-                updateSchedule(scheduleData);
-                
-                // Load analytics
-                try {
-                    const analyticsResponse = await fetch('/analytics');
-                    const analyticsData = await analyticsResponse.json();
-                    updateMetrics(analyticsData);
-                } catch (error) {
-                    console.log('Analytics not available yet');
-                }
-                
-            } catch (error) {
-                console.error('Dashboard load error:', error);
-                document.getElementById('system-status').textContent = '🔴';
-            }
+            // Each section loads independently so one failure doesn't block the others
+            await Promise.allSettled([
+                fetch('/health')
+                    .then(r => r.json())
+                    .then(updateSystemStatus)
+                    .catch(() => {
+                        document.getElementById('system-status').textContent = '🔴';
+                        document.getElementById('system-overview').innerHTML = '<p class="error">Unable to reach server</p>';
+                        document.getElementById('agent-status').innerHTML = '<p class="error">Server unavailable</p>';
+                    }),
+
+                fetch('/schedule')
+                    .then(r => r.json())
+                    .then(updateSchedule)
+                    .catch(() => {
+                        document.getElementById('upcoming-schedule').innerHTML = '<p class="warning">Schedule unavailable</p>';
+                    }),
+
+                fetch('/analytics')
+                    .then(r => r.json())
+                    .then(updateMetrics)
+                    .catch(() => updateMetrics(null))
+            ]);
         }
         
         function updateSystemStatus(data) {
@@ -285,7 +284,7 @@
             overview.innerHTML = `
                 <p><strong>Status:</strong> ${data.initialized ? 'Initialized' : 'Initializing'}</p>
                 <p><strong>Agents Active:</strong> ${data.agents ? data.agents.length : 0}/7</p>
-                <p><strong>Uptime:</strong> ${formatUptime(process?.uptime?.() || 0)}</p>
+                <p><strong>Last Updated:</strong> ${new Date().toLocaleTimeString()}</p>
                 <p><strong>Last Updated:</strong> ${new Date().toLocaleTimeString()}</p>
             `;
             

@@ -414,16 +414,17 @@ class Database {
   }
 
   async getUpcomingSchedule(days = 7) {
+    const startDate = new Date();
     const endDate = new Date();
     endDate.setDate(endDate.getDate() + days);
-    
+
     const rows = await this.getAllRows(
-      `SELECT * FROM publish_schedule 
-       WHERE publish_time BETWEEN datetime('now') AND datetime(?)
+      `SELECT * FROM publish_schedule
+       WHERE publish_time BETWEEN ? AND ?
        ORDER BY publish_time ASC`,
-      [endDate.toISOString()]
+      [startDate.toISOString(), endDate.toISOString()]
     );
-    
+
     return rows.map(row => ({
       ...row,
       metadata: JSON.parse(row.metadata || '{}')
